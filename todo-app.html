@@ -774,19 +774,41 @@
       50% { transform: translateY(-15px) translateX(-10px); }
     }
 
-    /* Background decorative banner */
-    .bg-banner {
+    /* Background decorative SVG gears (replaces static image) */
+    .bg-gears {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background-image: url('assets/bg-decor.jpg');
-      background-size: cover;
-      background-position: center;
-      opacity: 0.04;
       z-index: 0;
       pointer-events: none;
+      opacity: 0.03;
+    }
+    .bg-gear-group-1 {
+      position: absolute;
+      top: 20%;
+      left: 10%;
+    }
+    .bg-gear-group-2 {
+      position: absolute;
+      top: 60%;
+      right: 8%;
+    }
+    .bg-gear-group-3 {
+      position: absolute;
+      top: 40%;
+      left: 55%;
+    }
+    .bg-gear-group-4 {
+      position: absolute;
+      bottom: 15%;
+      left: 25%;
+    }
+    .bg-gear-group-5 {
+      position: absolute;
+      top: 8%;
+      right: 25%;
     }
 
     /* Clock face decoration */
@@ -833,8 +855,137 @@
   </style>
 </head>
 <body>
-  <!-- Animated Background Layer -->
-  <div class="bg-banner"></div>
+  <!-- Animated Background Layer - Rotating SVG Gears -->
+  <div class="bg-gears">
+    <!-- Group 1: Large gear + small gear -->
+    <div class="bg-gear-group-1">
+      <svg width="250" height="250" viewBox="0 0 250 250">
+        <g class="gear gear-spin-cw" style="transform-origin: 100px 100px">
+          <circle cx="100" cy="100" r="80" class="gear"/>
+          <circle cx="100" cy="100" r="60" class="gear"/>
+          <circle cx="100" cy="100" r="15" class="gear"/>
+          <rect x="95" y="15" width="10" height="25" rx="3" class="gear"/>
+          <rect x="95" y="160" width="10" height="25" rx="3" class="gear"/>
+          <rect x="15" y="95" width="25" height="10" rx="3" class="gear"/>
+          <rect x="160" y="95" width="25" height="10" rx="3" class="gear"/>
+          <rect x="40" y="40" width="10" height="22" rx="3" class="gear" transform="rotate(45, 45, 51)"/>
+          <rect x="150" y="40" width="10" height="22" rx="3" class="gear" transform="rotate(-45, 155, 51)"/>
+          <rect x="40" y="138" width="10" height="22" rx="3" class="gear" transform="rotate(-45, 45, 149)"/>
+          <rect x="150" y="138" width="10" height="22" rx="3" class="gear" transform="rotate(45, 155, 149)"/>
+        </g>
+        <g class="gear gear-spin-ccw" style="transform-origin: 210px 180px">
+          <circle cx="210" cy="180" r="40" class="gear"/>
+          <circle cx="210" cy="180" r="28" class="gear"/>
+          <circle cx="210" cy="180" r="8" class="gear"/>
+          <rect x="206" y="135" width="8" height="18" rx="2" class="gear"/>
+          <rect x="206" y="207" width="8" height="18" rx="2" class="gear"/>
+          <rect x="166" y="176" width="18" height="8" rx="2" class="gear"/>
+          <rect x="236" y="176" width="18" height="8" rx="2" class="gear"/>
+        </g>
+      </svg>
+    </div>
+    <!-- Group 2: Medium gear + tiny gear -->
+    <div class="bg-gear-group-2">
+      <svg width="200" height="200" viewBox="0 0 200 200">
+        <g class="gear gear-spin-ccw" style="transform-origin: 90px 90px">
+          <circle cx="90" cy="90" r="65" class="gear"/>
+          <circle cx="90" cy="90" r="45" class="gear"/>
+          <circle cx="90" cy="90" r="12" class="gear"/>
+          <rect x="86" y="20" width="8" height="22" rx="2" class="gear"/>
+          <rect x="86" y="138" width="8" height="22" rx="2" class="gear"/>
+          <rect x="20" y="86" width="22" height="8" rx="2" class="gear"/>
+          <rect x="138" y="86" width="22" height="8" rx="2" class="gear"/>
+          <rect x="45" y="42" width="8" height="18" rx="2" class="gear" transform="rotate(45, 49, 51)"/>
+          <rect x="127" y="42" width="8" height="18" rx="2" class="gear" transform="rotate(-45, 131, 51)"/>
+          <rect x="45" y="120" width="8" height="18" rx="2" class="gear" transform="rotate(-45, 49, 129)"/>
+          <rect x="127" y="120" width="8" height="18" rx="2" class="gear" transform="rotate(45, 131, 129)"/>
+        </g>
+        <g class="gear gear-spin-cw" style="transform-origin: 175px 45px">
+          <circle cx="175" cy="45" r="22" class="gear"/>
+          <circle cx="175" cy="45" r="14" class="gear"/>
+          <circle cx="175" cy="45" r="5" class="gear"/>
+          <rect x="172" y="20" width="6" height="12" rx="2" class="gear"/>
+          <rect x="172" y="58" width="6" height="12" rx="2" class="gear"/>
+          <rect x="149" y="42" width="12" height="6" rx="2" class="gear"/>
+          <rect x="189" y="42" width="12" height="6" rx="2" class="gear"/>
+        </g>
+      </svg>
+    </div>
+    <!-- Group 3: Single large ornate gear -->
+    <div class="bg-gear-group-3">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        <g class="gear gear-spin-slow" style="transform-origin: 90px 90px">
+          <circle cx="90" cy="90" r="75" class="gear"/>
+          <circle cx="90" cy="90" r="55" class="gear"/>
+          <circle cx="90" cy="90" r="35" class="gear"/>
+          <circle cx="90" cy="90" r="10" class="gear"/>
+          <rect x="86" y="10" width="8" height="22" rx="2" class="gear"/>
+          <rect x="86" y="148" width="8" height="22" rx="2" class="gear"/>
+          <rect x="10" y="86" width="22" height="8" rx="2" class="gear"/>
+          <rect x="148" y="86" width="22" height="8" rx="2" class="gear"/>
+          <rect x="35" y="35" width="8" height="18" rx="2" class="gear" transform="rotate(45, 39, 44)"/>
+          <rect x="137" y="35" width="8" height="18" rx="2" class="gear" transform="rotate(-45, 141, 44)"/>
+          <rect x="35" y="127" width="8" height="18" rx="2" class="gear" transform="rotate(-45, 39, 136)"/>
+          <rect x="137" y="127" width="8" height="18" rx="2" class="gear" transform="rotate(45, 141, 136)"/>
+        </g>
+      </svg>
+    </div>
+    <!-- Group 4: Two interlocking gears -->
+    <div class="bg-gear-group-4">
+      <svg width="220" height="160" viewBox="0 0 220 160">
+        <g class="gear gear-spin-cw" style="transform-origin: 70px 80px">
+          <circle cx="70" cy="80" r="55" class="gear"/>
+          <circle cx="70" cy="80" r="38" class="gear"/>
+          <circle cx="70" cy="80" r="10" class="gear"/>
+          <rect x="66" y="20" width="8" height="20" rx="2" class="gear"/>
+          <rect x="66" y="120" width="8" height="20" rx="2" class="gear"/>
+          <rect x="10" y="76" width="20" height="8" rx="2" class="gear"/>
+          <rect x="110" y="76" width="20" height="8" rx="2" class="gear"/>
+        </g>
+        <g class="gear gear-spin-ccw" style="transform-origin: 155px 80px">
+          <circle cx="155" cy="80" r="45" class="gear"/>
+          <circle cx="155" cy="80" r="30" class="gear"/>
+          <circle cx="155" cy="80" r="8" class="gear"/>
+          <rect x="151" y="30" width="8" height="18" rx="2" class="gear"/>
+          <rect x="151" y="112" width="8" height="18" rx="2" class="gear"/>
+          <rect x="106" y="76" width="18" height="8" rx="2" class="gear"/>
+          <rect x="186" y="76" width="18" height="8" rx="2" class="gear"/>
+        </g>
+      </svg>
+    </div>
+    <!-- Group 5: Small triple gears -->
+    <div class="bg-gear-group-5">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <g class="gear gear-spin-ccw" style="transform-origin: 55px 55px">
+          <circle cx="55" cy="55" r="35" class="gear"/>
+          <circle cx="55" cy="55" r="22" class="gear"/>
+          <circle cx="55" cy="55" r="6" class="gear"/>
+          <rect x="51" y="15" width="8" height="16" rx="2" class="gear"/>
+          <rect x="51" y="79" width="8" height="16" rx="2" class="gear"/>
+          <rect x="15" y="51" width="16" height="8" rx="2" class="gear"/>
+          <rect x="79" y="51" width="16" height="8" rx="2" class="gear"/>
+        </g>
+        <g class="gear gear-spin-cw" style="transform-origin: 120px 50px">
+          <circle cx="120" cy="50" r="25" class="gear"/>
+          <circle cx="120" cy="50" r="16" class="gear"/>
+          <circle cx="120" cy="50" r="5" class="gear"/>
+          <rect x="117" y="22" width="6" height="12" rx="2" class="gear"/>
+          <rect x="117" y="66" width="6" height="12" rx="2" class="gear"/>
+          <rect x="91" y="47" width="12" height="6" rx="2" class="gear"/>
+          <rect x="137" y="47" width="12" height="6" rx="2" class="gear"/>
+        </g>
+        <g class="gear gear-spin-slow" style="transform-origin: 100px 120px">
+          <circle cx="100" cy="120" r="20" class="gear"/>
+          <circle cx="100" cy="120" r="12" class="gear"/>
+          <circle cx="100" cy="120" r="4" class="gear"/>
+          <rect x="97" y="97" width="6" height="10" rx="2" class="gear"/>
+          <rect x="97" y="133" width="6" height="10" rx="2" class="gear"/>
+          <rect x="76" y="117" width="10" height="6" rx="2" class="gear"/>
+          <rect x="114" y="117" width="10" height="6" rx="2" class="gear"/>
+        </g>
+      </svg>
+    </div>
+  </div>
 
   <!-- Golden Particles -->
   <div class="particles" id="particles"></div>
