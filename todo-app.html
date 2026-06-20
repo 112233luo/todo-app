@@ -552,38 +552,28 @@
 
   <script>
     // ===== Data Layer =====
-    // JSONBin.io config - replace with your valid API key
     const JSONBIN_API_KEY = '$2a$10$ZOvb.B/gphXQUXB6/vwIpOu.hmDg/1oTM6rohiF8Vij0irEPkJit.';
-    const BIN_NAME = 'todo-app-shared-data';
-    let SHARED_BIN_ID = localStorage.getItem('jsonbin_bin_id') || null;
+    // Fixed shared bin ID - all devices use the same storage
+    const SHARED_BIN_ID = '6a36accfda38895dfee31eac';
     let todos = [];
     let currentFilter = 'all';
     let editingId = null;
     let isLoading = false;
-    let cloudEnabled = false;
+    let cloudAvailable = true;
 
     // JSONBin.io API helpers
-    async function createBin(data, name) {
-      const res = await fetch('https://api.jsonbin.io/v3/b', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Master-Key': JSONBIN_API_KEY,
-          'X-Bin-Private': 'false',
-          'X-Bin-Name': name || 'todo-data'
-        },
-        body: JSON.stringify({ todos: data })
+    async function readBin() {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${SHARED_BIN_ID}/latest`, {
+        method: 'GET',
+        headers: { 'X-Master-Key': JSONBIN_API_KEY }
       });
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error('创建存储失败: ' + err);
-      }
+      if (!res.ok) throw new Error('读取失败: ' + res.status);
       const result = await res.json();
-      return result.metadata.id;
+      return result.record.todos || [];
     }
 
-    async function updateBin(binId, data) {
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+    async function updateBin(data) {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${SHARED_BIN_ID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -591,121 +581,56 @@
         },
         body: JSON.stringify({ todos: data })
       });
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error('更新存储失败: ' + err);
-      }
+      if (!res.ok) throw new Error('保存失败: ' + res.status);
       return await res.json();
     }
 
-    async function readBin(binId) {
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
-        method: 'GET',
-        headers: {
-          'X-Master-Key': JSONBIN_API_KEY
-        }
-      });
-      if (!res.ok) {
-        const err = await res.text();
-        throw new Error('读取存储失败: ' + err);
-      }
-      const result = await res.json();
-      return result.record.todos || [];
-    }
-
-    // Find existing bin by name or create new one
-    async function getOrCreateSharedBin() {
-      try {
-        // List all bins to find existing one
-        const res = await fetch('https://api.jsonbin.io/v3/c', {
-          method: 'GET',
-          headers: {
-            'X-Master-Key': JSONBIN_API_KEY
-          }
-        });
-        if (res.ok) {
-          const result = await res.json();
-          const existing = result.find(b => b.snippetMeta && b.snippetMeta.name === BIN_NAME);
-          if (existing) {
-            return existing.record;
-          }
-        }
-      } catch (e) {
-        console.log('查找存储失败:', e);
-      }
-      // Create new bin if not found
-      return await createBin([], BIN_NAME);
-    }
-
-    // Load todos - try cloud first, fallback to localStorage
+    // Load todos from cloud, fallback to localStorage
     async function loadTodos() {
       isLoading = true;
       showSyncStatus('syncing');
       
-      // Always load local data first as baseline
-      const local = localStorage.getItem('my_todo_app_data');
-      if (local) {
-        try {
-          todos = JSON.parse(local);
-        } catch (e) {
-          todos = [];
-        }
-      }
-      
-      // Then try to sync with cloud
+      // Try cloud first
       try {
-        if (!SHARED_BIN_ID) {
-          SHARED_BIN_ID = await getOrCreateSharedBin();
-          localStorage.setItem('jsonbin_bin_id', SHARED_BIN_ID);
-        }
-        const cloudTodos = await readBin(SHARED_BIN_ID);
-        // Merge: use cloud data if it has items, otherwise keep local
-        if (cloudTodos && cloudTodos.length > 0) {
-          todos = cloudTodos;
-          // Update local backup
-          localStorage.setItem('my_todo_app_data', JSON.stringify(todos));
-        } else if (todos.length > 0) {
-          // Local has data but cloud is empty, upload local to cloud
-          await updateBin(SHARED_BIN_ID, todos);
-        }
-        cloudEnabled = true;
+        const cloudTodos = await readBin();
+        todos = cloudTodos;
+        // Sync to localStorage as backup
+        localStorage.setItem('my_todo_app_data', JSON.stringify(todos));
+        cloudAvailable = true;
         showSyncStatus('synced');
       } catch (e) {
         console.error('云端加载失败:', e);
-        cloudEnabled = false;
-        showSyncStatus('offline');
-        // Keep local data, don't show error if we have local data
-        if (!local) {
-          showToast('云端同步失败，使用本地数据');
+        // Fallback to localStorage
+        const local = localStorage.getItem('my_todo_app_data');
+        if (local) {
+          try { todos = JSON.parse(local); } catch (err) { todos = []; }
         }
+        cloudAvailable = false;
+        showSyncStatus('offline');
       }
+      
       isLoading = false;
       renderTodos();
       updateStats();
     }
 
-    // Save todos - save to both cloud and localStorage
+    // Save todos to cloud and localStorage
     async function saveTodos() {
       if (isLoading) return;
       
-      // Always save to localStorage first
+      // Always save to localStorage
       localStorage.setItem('my_todo_app_data', JSON.stringify(todos));
       
-      // Then try cloud
-      if (cloudEnabled) {
+      // Try to save to cloud
+      if (cloudAvailable) {
         showSyncStatus('syncing');
         try {
-          if (!SHARED_BIN_ID) {
-            SHARED_BIN_ID = await getOrCreateSharedBin();
-            localStorage.setItem('jsonbin_bin_id', SHARED_BIN_ID);
-          }
-          await updateBin(SHARED_BIN_ID, todos);
+          await updateBin(todos);
           showSyncStatus('synced');
         } catch (e) {
           console.error('云端保存失败:', e);
-          cloudEnabled = false;
+          cloudAvailable = false;
           showSyncStatus('offline');
-          showToast('云端同步失败，已保存到本地');
         }
       }
       updateStats();
