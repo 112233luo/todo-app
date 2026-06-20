@@ -552,41 +552,106 @@
 
   <script>
     // ===== Data Layer =====
-    const STORAGE_KEY = 'my_todo_app_data';
-    const CLOUD_KEY = 'my_todo_app_cloud';
+    const JSONBIN_API_KEY = '$2a$10$ZOvb.B/gphXQUXB6/vwIpOu.hmDg/1oTM6rohiF8Vij0irEPkJit.';
+    const JSONBIN_BIN_ID = localStorage.getItem('jsonbin_bin_id') || null;
     let todos = [];
     let currentFilter = 'all';
     let editingId = null;
+    let isLoading = false;
 
-    // Load from localStorage (simulating cloud)
-    function loadTodos() {
-      try {
-        const local = localStorage.getItem(STORAGE_KEY);
-        const cloud = localStorage.getItem(CLOUD_KEY);
-        // Prefer cloud data (simulated)
-        const data = cloud || local;
-        if (data) {
-          todos = JSON.parse(data);
+    // JSONBin.io API helpers
+    async function createBin(data) {
+      const res = await fetch('https://api.jsonbin.io/v3/b', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': JSONBIN_API_KEY,
+          'X-Bin-Private': 'false'
+        },
+        body: JSON.stringify({ todos: data })
+      });
+      if (!res.ok) throw new Error('创建存储失败');
+      const result = await res.json();
+      return result.metadata.id;
+    }
+
+    async function updateBin(binId, data) {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Master-Key': JSONBIN_API_KEY
+        },
+        body: JSON.stringify({ todos: data })
+      });
+      if (!res.ok) throw new Error('更新存储失败');
+      return await res.json();
+    }
+
+    async function readBin(binId) {
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${binId}/latest`, {
+        method: 'GET',
+        headers: {
+          'X-Master-Key': JSONBIN_API_KEY
         }
+      });
+      if (!res.ok) throw new Error('读取存储失败');
+      const result = await res.json();
+      return result.record.todos || [];
+    }
+
+    // Load from JSONBin.io (real cloud)
+    async function loadTodos() {
+      isLoading = true;
+      showSyncStatus('syncing');
+      try {
+        if (JSONBIN_BIN_ID) {
+          todos = await readBin(JSONBIN_BIN_ID);
+        } else {
+          // Try to migrate from localStorage
+          const local = localStorage.getItem('my_todo_app_data');
+          const legacy = local ? JSON.parse(local) : [];
+          todos = Array.isArray(legacy) ? legacy : [];
+          if (todos.length > 0) {
+            const binId = await createBin(todos);
+            localStorage.setItem('jsonbin_bin_id', binId);
+          }
+        }
+        showSyncStatus('synced');
       } catch (e) {
-        console.error('加载数据失败:', e);
-        todos = [];
+        console.error('云端加载失败:', e);
+        // Fallback to localStorage
+        const local = localStorage.getItem('my_todo_app_data');
+        if (local) todos = JSON.parse(local);
+        showSyncStatus('offline');
+        showToast('云端同步失败，使用本地数据');
       }
+      isLoading = false;
       renderTodos();
       updateStats();
     }
 
-    // Save to localStorage (simulating cloud sync)
-    function saveTodos() {
+    // Save to JSONBin.io (real cloud sync)
+    async function saveTodos() {
+      if (isLoading) return;
+      showSyncStatus('syncing');
       try {
-        const data = JSON.stringify(todos);
-        localStorage.setItem(STORAGE_KEY, data);
-        localStorage.setItem(CLOUD_KEY, data);
-        showSyncStatus('syncing');
-        setTimeout(() => showSyncStatus('synced'), 600);
+        let binId = localStorage.getItem('jsonbin_bin_id');
+        if (!binId) {
+          binId = await createBin(todos);
+          localStorage.setItem('jsonbin_bin_id', binId);
+        } else {
+          await updateBin(binId, todos);
+        }
+        // Also backup to localStorage
+        localStorage.setItem('my_todo_app_data', JSON.stringify(todos));
+        showSyncStatus('synced');
       } catch (e) {
-        console.error('保存数据失败:', e);
+        console.error('云端保存失败:', e);
+        // Fallback to localStorage only
+        localStorage.setItem('my_todo_app_data', JSON.stringify(todos));
         showSyncStatus('offline');
+        showToast('云端同步失败，已保存到本地');
       }
       updateStats();
     }
@@ -778,11 +843,24 @@
     // ===== Init =====
     loadTodos();
 
-    // Simulate periodic cloud sync
-    setInterval(() => {
-      if (todos.length > 0) {
-        showSyncStatus('syncing');
-        setTimeout(() => showSyncStatus('synced'), 500);
+    // Periodic cloud sync (pull latest data every 30s)
+    setInterval(async () => {
+      const binId = localStorage.getItem('jsonbin_bin_id');
+      if (binId && !isLoading) {
+        try {
+          const latest = await readBin(binId);
+          // Only update if remote data is different
+          const localStr = JSON.stringify(todos);
+          const remoteStr = JSON.stringify(latest);
+          if (localStr !== remoteStr) {
+            todos = latest;
+            renderTodos();
+            updateStats();
+            showToast('已同步最新数据');
+          }
+        } catch (e) {
+          console.log('定时同步失败:', e);
+        }
       }
     }, 30000);
   </script>
