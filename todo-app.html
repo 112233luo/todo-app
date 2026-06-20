@@ -4,34 +4,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>我的待办事项</title>
+  <title>待办事项 - 时间事务所</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* === Theme CSS variables === */
+    /* === Theme CSS variables - 重返未来1999风格 === */
     :root {
-      --bg: #f0f4f8;
-      --bg2: #ffffff;
-      --ink: #1e293b;
-      --muted: #64748b;
-      --rule: #e2e8f0;
-      --accent: #3b82f6;
-      --accent2: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-      --max: 680px;
+      --bg: #1a1510;
+      --bg2: #2d2418;
+      --bg3: #3d3020;
+      --ink: #e8dcc8;
+      --muted: #a09078;
+      --rule: #5a4a30;
+      --accent: #c9a84c;
+      --accent2: #8b7355;
+      --danger: #a04030;
+      --warning: #c9a84c;
+      --success: #6b8e6b;
+      --font-display: 'Cinzel', 'Noto Serif SC', serif;
+      --font-body: 'Noto Serif SC', 'Songti SC', serif;
+      --max: 720px;
     }
 
     /* === Base styles === */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { font-size: 16px; scroll-behavior: smooth; }
     body {
-      font-family: var(--font);
+      font-family: var(--font-body);
       color: var(--ink);
       background: var(--bg);
-      line-height: 1.6;
+      line-height: 1.7;
       padding: 1rem;
       min-height: 100vh;
+      background-image: 
+        radial-gradient(ellipse at top, rgba(201,168,76,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom, rgba(139,115,85,0.06) 0%, transparent 50%);
     }
 
     /* === Layout === */
@@ -39,55 +46,106 @@
       max-width: var(--max);
       margin: 0 auto;
       padding: 1rem 0;
+      position: relative;
+    }
+
+    /* === Decorative corner ornaments === */
+    .app-container::before,
+    .app-container::after {
+      content: '';
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border: 2px solid var(--accent);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .app-container::before {
+      top: 0;
+      left: -10px;
+      border-right: none;
+      border-bottom: none;
+    }
+    .app-container::after {
+      bottom: 0;
+      right: -10px;
+      border-left: none;
+      border-top: none;
     }
 
     /* === Header === */
     .app-header {
       text-align: center;
-      margin-bottom: 2rem;
-      padding: 1.5rem 1rem;
-      background: var(--bg2);
-      border-radius: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      margin-bottom: 2.5rem;
+      padding: 2rem 1.5rem;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+      border: 2px solid var(--rule);
+      border-radius: 4px;
+      position: relative;
+      box-shadow: 
+        0 0 0 1px var(--bg),
+        0 4px 20px rgba(0,0,0,0.4),
+        inset 0 1px 0 rgba(201,168,76,0.1);
+    }
+    .app-header::before {
+      content: '◆';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--accent);
+      font-size: 1.2rem;
+      background: var(--bg);
+      padding: 0 1rem;
     }
     .app-header h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--ink);
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--accent);
       margin-bottom: 0.5rem;
+      letter-spacing: 0.15em;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
     .app-header .subtitle {
-      font-size: 0.875rem;
+      font-size: 0.85rem;
       color: var(--muted);
+      font-style: italic;
+      letter-spacing: 0.08em;
     }
     .sync-status {
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      margin-top: 0.75rem;
-      padding: 0.35rem 0.85rem;
-      border-radius: 20px;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
       font-size: 0.75rem;
       font-weight: 500;
+      font-family: var(--font-display);
+      letter-spacing: 0.1em;
       transition: all 0.3s ease;
+      background: var(--bg);
     }
     .sync-status.synced {
-      background: #d1fae5;
-      color: #065f46;
+      border-color: var(--success);
+      color: var(--success);
     }
     .sync-status.syncing {
-      background: #dbeafe;
-      color: #1e40af;
+      border-color: var(--accent);
+      color: var(--accent);
     }
     .sync-status.offline {
-      background: #fee2e2;
-      color: #991b1b;
+      border-color: var(--danger);
+      color: var(--danger);
     }
     .sync-dot {
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: currentColor;
+      box-shadow: 0 0 6px currentColor;
     }
     .sync-status.syncing .sync-dot {
       animation: pulse 1.5s infinite;
@@ -97,102 +155,179 @@
       50% { opacity: 0.3; }
     }
 
+    /* === Stats Bar === */
+    .stats-bar {
+      display: flex;
+      justify-content: space-around;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+      padding: 1.25rem;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .stats-bar::before,
+    .stats-bar::after {
+      content: '❧';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--rule);
+      font-size: 0.8rem;
+    }
+    .stats-bar::before { left: 10px; }
+    .stats-bar::after { right: 10px; }
+    .stat-item {
+      text-align: center;
+      position: relative;
+    }
+    .stat-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      right: -50%;
+      top: 10%;
+      height: 80%;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, var(--rule), transparent);
+    }
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-shadow: 0 0 10px rgba(201,168,76,0.3);
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
     /* === Input Area === */
     .input-section {
-      background: var(--bg2);
-      padding: 1.25rem;
-      border-radius: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+      padding: 1.5rem;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
       margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .input-section::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 20%;
+      right: 20%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
     }
     .input-wrapper {
       display: flex;
       gap: 0.75rem;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
     }
     .todo-input {
       flex: 1;
       padding: 0.875rem 1rem;
-      border: 2px solid var(--rule);
-      border-radius: 12px;
-      font-size: 1rem;
-      font-family: inherit;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      font-size: 0.95rem;
+      font-family: var(--font-body);
       color: var(--ink);
-      background: var(--bg2);
-      transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--bg);
+      transition: all 0.3s;
+      letter-spacing: 0.05em;
     }
     .todo-input:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      box-shadow: 0 0 0 1px rgba(201,168,76,0.2), inset 0 1px 2px rgba(0,0,0,0.2);
     }
     .todo-input::placeholder {
       color: var(--muted);
+      font-style: italic;
     }
     .add-btn {
-      padding: 0.875rem 1.5rem;
-      background: var(--accent);
-      color: white;
+      padding: 0.875rem 1.75rem;
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent2) 100%);
+      color: var(--bg);
       border: none;
-      border-radius: 12px;
-      font-size: 1rem;
+      border-radius: 2px;
+      font-size: 0.9rem;
       font-weight: 600;
-      font-family: inherit;
+      font-family: var(--font-display);
+      letter-spacing: 0.1em;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
+      transition: all 0.3s;
       white-space: nowrap;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 8px rgba(201,168,76,0.3);
     }
     .add-btn:hover {
-      background: #2563eb;
+      background: linear-gradient(180deg, #d4b55a 0%, #9a8060 100%);
+      box-shadow: 0 4px 12px rgba(201,168,76,0.4);
+      transform: translateY(-1px);
     }
     .add-btn:active {
-      transform: scale(0.97);
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(201,168,76,0.3);
     }
     .options-row {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.75rem;
       flex-wrap: wrap;
     }
     .priority-select, .category-select {
-      padding: 0.5rem 0.75rem;
+      padding: 0.6rem 1rem;
       border: 1px solid var(--rule);
-      border-radius: 8px;
-      font-size: 0.875rem;
-      font-family: inherit;
+      border-radius: 2px;
+      font-size: 0.85rem;
+      font-family: var(--font-body);
       color: var(--ink);
-      background: var(--bg2);
+      background: var(--bg);
       cursor: pointer;
+      transition: all 0.3s;
+    }
+    .priority-select:focus, .category-select:focus {
+      outline: none;
+      border-color: var(--accent);
     }
 
     /* === Filter Tabs === */
     .filter-tabs {
       display: flex;
       gap: 0.5rem;
-      margin-bottom: 1rem;
-      background: var(--bg2);
+      margin-bottom: 1.25rem;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
       padding: 0.5rem;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
     }
     .filter-tab {
       flex: 1;
-      padding: 0.625rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.875rem;
+      padding: 0.75rem;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      font-size: 0.85rem;
       font-weight: 500;
-      font-family: inherit;
+      font-family: var(--font-display);
+      letter-spacing: 0.1em;
       color: var(--muted);
       background: transparent;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s;
+      position: relative;
     }
     .filter-tab.active {
-      background: var(--accent);
-      color: white;
+      background: linear-gradient(180deg, rgba(201,168,76,0.15) 0%, rgba(201,168,76,0.05) 100%);
+      border-color: var(--accent);
+      color: var(--accent);
+      text-shadow: 0 0 8px rgba(201,168,76,0.3);
     }
     .filter-tab:hover:not(.active) {
-      background: var(--bg);
+      background: rgba(201,168,76,0.05);
       color: var(--ink);
     }
 
@@ -203,26 +338,45 @@
     .todo-item {
       display: flex;
       align-items: center;
-      gap: 0.875rem;
-      padding: 1rem 1.25rem;
-      background: var(--bg2);
-      border-radius: 14px;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
       margin-bottom: 0.75rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-      transition: transform 0.2s, box-shadow 0.2s;
-      animation: slideIn 0.3s ease;
+      transition: all 0.3s;
+      animation: slideIn 0.4s ease;
+      position: relative;
     }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
+    .todo-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .todo-item:hover::before {
+      opacity: 1;
     }
     .todo-item:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-color: var(--accent2);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+      transform: translateX(4px);
     }
     .todo-item.completed .todo-text {
       text-decoration: line-through;
       color: var(--muted);
+    }
+    .todo-item.completed {
+      opacity: 0.7;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
     }
     .todo-checkbox {
       width: 22px;
@@ -234,20 +388,22 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: all 0.2s;
+      transition: all 0.3s;
+      background: var(--bg);
     }
     .todo-checkbox:hover {
-      border-color: var(--accent2);
+      border-color: var(--accent);
+      box-shadow: 0 0 8px rgba(201,168,76,0.3);
     }
     .todo-checkbox.checked {
-      background: var(--accent2);
-      border-color: var(--accent2);
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent2) 100%);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(201,168,76,0.4);
     }
     .todo-checkbox.checked::after {
-      content: '✓';
-      color: white;
-      font-size: 0.8rem;
-      font-weight: bold;
+      content: '✦';
+      color: var(--bg);
+      font-size: 0.7rem;
     }
     .todo-content {
       flex: 1;
@@ -256,105 +412,98 @@
     .todo-text {
       font-size: 0.95rem;
       word-break: break-word;
-      transition: color 0.2s;
+      transition: color 0.3s;
+      letter-spacing: 0.03em;
     }
     .todo-meta {
       display: flex;
-      gap: 0.5rem;
-      margin-top: 0.35rem;
+      gap: 0.6rem;
+      margin-top: 0.5rem;
       flex-wrap: wrap;
     }
     .tag {
       font-size: 0.7rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
+      padding: 0.2rem 0.6rem;
+      border-radius: 2px;
       font-weight: 500;
+      font-family: var(--font-display);
+      letter-spacing: 0.08em;
+      border: 1px solid;
     }
     .tag.priority-high {
-      background: #fee2e2;
-      color: #991b1b;
+      background: rgba(160,64,48,0.15);
+      color: #c07060;
+      border-color: rgba(160,64,48,0.3);
     }
     .tag.priority-medium {
-      background: #fef3c7;
-      color: #92400e;
+      background: rgba(201,168,76,0.15);
+      color: var(--accent);
+      border-color: rgba(201,168,76,0.3);
     }
     .tag.priority-low {
-      background: #d1fae5;
-      color: #065f46;
+      background: rgba(107,142,107,0.15);
+      color: var(--success);
+      border-color: rgba(107,142,107,0.3);
     }
     .tag.category {
-      background: #e0e7ff;
-      color: #3730a3;
+      background: rgba(139,115,85,0.15);
+      color: var(--accent2);
+      border-color: rgba(139,115,85,0.3);
     }
     .todo-date {
       font-size: 0.75rem;
       color: var(--muted);
+      font-style: italic;
     }
     .todo-actions {
       display: flex;
-      gap: 0.35rem;
+      gap: 0.5rem;
       flex-shrink: 0;
     }
     .action-btn {
-      width: 32px;
-      height: 32px;
-      border: none;
-      border-radius: 8px;
-      background: transparent;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      background: var(--bg);
       color: var(--muted);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
-      font-size: 1rem;
+      transition: all 0.3s;
+      font-size: 0.9rem;
     }
     .action-btn:hover {
-      background: var(--bg);
-      color: var(--ink);
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(201,168,76,0.1);
+      box-shadow: 0 0 8px rgba(201,168,76,0.2);
     }
     .action-btn.delete:hover {
-      background: #fee2e2;
-      color: var(--danger);
+      border-color: var(--danger);
+      color: #c07060;
+      background: rgba(160,64,48,0.1);
     }
 
     /* === Empty State === */
     .empty-state {
       text-align: center;
-      padding: 3rem 1rem;
+      padding: 4rem 1rem;
       color: var(--muted);
+      border: 1px dashed var(--rule);
+      border-radius: 4px;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
     }
     .empty-state .empty-icon {
-      font-size: 3rem;
+      font-size: 2.5rem;
       margin-bottom: 1rem;
       opacity: 0.5;
     }
     .empty-state p {
-      font-size: 0.95rem;
-    }
-
-    /* === Stats Bar === */
-    .stats-bar {
-      display: flex;
-      justify-content: space-around;
-      background: var(--bg2);
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .stat-item {
-      text-align: center;
-    }
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--accent);
-    }
-    .stat-label {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 0.25rem;
+      font-size: 0.9rem;
+      font-style: italic;
+      letter-spacing: 0.1em;
     }
 
     /* === Edit Modal === */
@@ -364,7 +513,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(26,21,16,0.85);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -372,68 +521,96 @@
       opacity: 0;
       visibility: hidden;
       transition: all 0.3s;
+      backdrop-filter: blur(4px);
     }
     .modal-overlay.active {
       opacity: 1;
       visibility: visible;
     }
     .modal {
-      background: var(--bg2);
-      padding: 1.5rem;
-      border-radius: 16px;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+      padding: 2rem;
+      border: 2px solid var(--rule);
+      border-radius: 4px;
       width: 90%;
       max-width: 420px;
       transform: scale(0.9);
       transition: transform 0.3s;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      position: relative;
     }
     .modal-overlay.active .modal {
       transform: scale(1);
     }
+    .modal::before {
+      content: '◆';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--accent);
+      font-size: 1rem;
+      background: var(--bg2);
+      padding: 0 0.75rem;
+    }
     .modal h3 {
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
       font-size: 1.1rem;
+      font-family: var(--font-display);
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-align: center;
     }
     .modal-input {
       width: 100%;
-      padding: 0.75rem;
-      border: 2px solid var(--rule);
-      border-radius: 10px;
+      padding: 0.875rem 1rem;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
       font-size: 1rem;
-      font-family: inherit;
-      margin-bottom: 1rem;
+      font-family: var(--font-body);
+      color: var(--ink);
+      background: var(--bg);
+      margin-bottom: 1.25rem;
+      transition: all 0.3s;
     }
     .modal-input:focus {
       outline: none;
       border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(201,168,76,0.2);
     }
     .modal-actions {
       display: flex;
-      gap: 0.75rem;
-      justify-content: flex-end;
+      gap: 1rem;
+      justify-content: center;
     }
     .modal-btn {
-      padding: 0.625rem 1.25rem;
-      border: none;
-      border-radius: 10px;
-      font-size: 0.875rem;
+      padding: 0.75rem 1.5rem;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      font-size: 0.85rem;
       font-weight: 500;
-      font-family: inherit;
+      font-family: var(--font-display);
+      letter-spacing: 0.1em;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s;
     }
     .modal-btn.cancel {
-      background: var(--bg);
+      background: transparent;
       color: var(--muted);
     }
     .modal-btn.cancel:hover {
-      background: var(--rule);
+      border-color: var(--danger);
+      color: #c07060;
+      background: rgba(160,64,48,0.1);
     }
     .modal-btn.save {
-      background: var(--accent);
-      color: white;
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent2) 100%);
+      color: var(--bg);
+      border-color: var(--accent);
     }
     .modal-btn.save:hover {
-      background: #2563eb;
+      background: linear-gradient(180deg, #d4b55a 0%, #9a8060 100%);
+      box-shadow: 0 0 12px rgba(201,168,76,0.3);
     }
 
     /* === Toast === */
@@ -442,29 +619,48 @@
       bottom: 2rem;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: var(--ink);
-      color: white;
-      padding: 0.75rem 1.5rem;
-      border-radius: 10px;
-      font-size: 0.875rem;
+      background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+      color: var(--accent);
+      padding: 0.875rem 2rem;
+      border: 1px solid var(--accent);
+      border-radius: 2px;
+      font-size: 0.85rem;
+      font-family: var(--font-display);
+      letter-spacing: 0.1em;
       z-index: 1001;
       opacity: 0;
       transition: all 0.3s;
       white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
     }
     .toast.show {
       transform: translateX(-50%) translateY(0);
       opacity: 1;
     }
 
+    /* === Scrollbar === */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--rule);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent2);
+    }
+
     /* === Responsive === */
     @media (max-width: 480px) {
       body { padding: 0.75rem; }
-      .app-header h1 { font-size: 1.5rem; }
+      .app-header h1 { font-size: 1.4rem; }
       .input-wrapper { flex-direction: column; }
       .add-btn { width: 100%; }
-      .todo-item { padding: 0.875rem; }
-      .stats-bar { gap: 1rem; }
+      .todo-item { padding: 1rem; }
+      .stats-bar::before, .stats-bar::after { display: none; }
     }
   </style>
 </head>
@@ -472,8 +668,8 @@
   <div class="app-container">
     <!-- Header -->
     <header class="app-header">
-      <h1>📝 我的待办事项</h1>
-      <p class="subtitle">随时记录，云端同步，永不丢失</p>
+      <h1>时间事务所</h1>
+      <p class="subtitle">记录命运的轨迹，管理时间的碎片</p>
       <div class="sync-status synced" id="syncStatus">
         <span class="sync-dot"></span>
         <span id="syncText">已同步到云端</span>
@@ -499,8 +695,8 @@
     <!-- Input -->
     <div class="input-section">
       <div class="input-wrapper">
-        <input type="text" class="todo-input" id="todoInput" placeholder="添加新的待办事项..." maxlength="200">
-        <button class="add-btn" id="addBtn">添加</button>
+        <input type="text" class="todo-input" id="todoInput" placeholder="记录新的时间碎片..." maxlength="200">
+        <button class="add-btn" id="addBtn">铭刻</button>
       </div>
       <div class="options-row">
         <select class="priority-select" id="prioritySelect">
@@ -530,19 +726,19 @@
 
     <!-- Empty State -->
     <div class="empty-state" id="emptyState" style="display: none;">
-      <div class="empty-icon">📋</div>
-      <p>暂无待办事项，添加一个吧！</p>
+      <div class="empty-icon">◈</div>
+      <p>时间之轮静止，铭刻新的轨迹吧</p>
     </div>
   </div>
 
   <!-- Edit Modal -->
   <div class="modal-overlay" id="editModal">
     <div class="modal">
-      <h3>编辑待办事项</h3>
+      <h3>修改时间碎片</h3>
       <input type="text" class="modal-input" id="editInput" maxlength="200">
       <div class="modal-actions">
         <button class="modal-btn cancel" id="cancelEdit">取消</button>
-        <button class="modal-btn save" id="saveEdit">保存</button>
+        <button class="modal-btn save" id="saveEdit">铭刻</button>
       </div>
     </div>
   </div>
@@ -553,7 +749,6 @@
   <script>
     // ===== Data Layer =====
     const JSONBIN_API_KEY = '$2a$10$ZOvb.B/gphXQUXB6/vwIpOu.hmDg/1oTM6rohiF8Vij0irEPkJit.';
-    // Fixed shared bin ID - all devices use the same storage
     const SHARED_BIN_ID = '6a36accfda38895dfee31eac';
     let todos = [];
     let currentFilter = 'all';
@@ -561,7 +756,6 @@
     let isLoading = false;
     let cloudAvailable = true;
 
-    // JSONBin.io API helpers
     async function readBin() {
       const res = await fetch(`https://api.jsonbin.io/v3/b/${SHARED_BIN_ID}/latest`, {
         method: 'GET',
@@ -585,43 +779,30 @@
       return await res.json();
     }
 
-    // Load todos from cloud, fallback to localStorage
     async function loadTodos() {
       isLoading = true;
       showSyncStatus('syncing');
-      
-      // Try cloud first
       try {
         const cloudTodos = await readBin();
         todos = cloudTodos;
-        // Sync to localStorage as backup
         localStorage.setItem('my_todo_app_data', JSON.stringify(todos));
         cloudAvailable = true;
         showSyncStatus('synced');
       } catch (e) {
         console.error('云端加载失败:', e);
-        // Fallback to localStorage
         const local = localStorage.getItem('my_todo_app_data');
-        if (local) {
-          try { todos = JSON.parse(local); } catch (err) { todos = []; }
-        }
+        if (local) { try { todos = JSON.parse(local); } catch (err) { todos = []; } }
         cloudAvailable = false;
         showSyncStatus('offline');
       }
-      
       isLoading = false;
       renderTodos();
       updateStats();
     }
 
-    // Save todos to cloud and localStorage
     async function saveTodos() {
       if (isLoading) return;
-      
-      // Always save to localStorage
       localStorage.setItem('my_todo_app_data', JSON.stringify(todos));
-      
-      // Try to save to cloud
       if (cloudAvailable) {
         showSyncStatus('syncing');
         try {
@@ -636,7 +817,6 @@
       updateStats();
     }
 
-    // Show sync status
     function showSyncStatus(status) {
       const el = document.getElementById('syncStatus');
       const text = document.getElementById('syncText');
@@ -649,7 +829,6 @@
       text.textContent = texts[status];
     }
 
-    // ===== Todo Operations =====
     function addTodo(text, priority, category) {
       if (!text.trim()) return;
       const todo = {
@@ -664,7 +843,7 @@
       todos.unshift(todo);
       saveTodos();
       renderTodos();
-      showToast('已添加待办事项');
+      showToast('已铭刻时间碎片');
     }
 
     function toggleTodo(id) {
@@ -674,7 +853,7 @@
         todo.updatedAt = new Date().toISOString();
         saveTodos();
         renderTodos();
-        showToast(todo.completed ? '已完成 ✓' : '已取消完成');
+        showToast(todo.completed ? '时间碎片已封印 ✦' : '封印已解除');
       }
     }
 
@@ -682,7 +861,7 @@
       todos = todos.filter(t => t.id !== id);
       saveTodos();
       renderTodos();
-      showToast('已删除');
+      showToast('时间碎片已消散');
     }
 
     function startEdit(id) {
@@ -703,7 +882,7 @@
           todo.updatedAt = new Date().toISOString();
           saveTodos();
           renderTodos();
-          showToast('已保存修改');
+          showToast('时间碎片已重塑');
         }
       }
       closeEdit();
@@ -714,11 +893,9 @@
       document.getElementById('editModal').classList.remove('active');
     }
 
-    // ===== Rendering =====
     function renderTodos() {
       const list = document.getElementById('todoList');
       const empty = document.getElementById('emptyState');
-      
       let filtered = todos;
       if (currentFilter === 'active') filtered = todos.filter(t => !t.completed);
       if (currentFilter === 'completed') filtered = todos.filter(t => t.completed);
@@ -731,18 +908,9 @@
       empty.style.display = 'none';
 
       const categoryNames = {
-        general: '一般',
-        work: '工作',
-        study: '学习',
-        life: '生活',
-        health: '健康'
+        general: '一般', work: '工作', study: '学习', life: '生活', health: '健康'
       };
-
-      const priorityNames = {
-        high: '高',
-        medium: '中',
-        low: '低'
-      };
+      const priorityNames = { high: '高', medium: '中', low: '低' };
 
       list.innerHTML = filtered.map(todo => {
         const date = new Date(todo.createdAt);
@@ -753,14 +921,14 @@
             <div class="todo-content">
               <div class="todo-text">${escapeHtml(todo.text)}</div>
               <div class="todo-meta">
-                <span class="tag priority-${todo.priority}">优先级：${priorityNames[todo.priority]}</span>
+                <span class="tag priority-${todo.priority}">${priorityNames[todo.priority]}</span>
                 <span class="tag category">${categoryNames[todo.category]}</span>
                 <span class="todo-date">${dateStr}</span>
               </div>
             </div>
             <div class="todo-actions">
-              <button class="action-btn" onclick="startEdit('${todo.id}')" title="编辑">✏️</button>
-              <button class="action-btn delete" onclick="deleteTodo('${todo.id}')" title="删除">🗑️</button>
+              <button class="action-btn" onclick="startEdit('${todo.id}')" title="编辑">✦</button>
+              <button class="action-btn delete" onclick="deleteTodo('${todo.id}')" title="删除">✕</button>
             </div>
           </li>
         `;
@@ -779,15 +947,13 @@
       return div.innerHTML;
     }
 
-    // ===== UI Helpers =====
     function showToast(message) {
       const toast = document.getElementById('toast');
       toast.textContent = message;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
+      setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
-    // ===== Event Listeners =====
     document.getElementById('addBtn').addEventListener('click', () => {
       const input = document.getElementById('todoInput');
       const priority = document.getElementById('prioritySelect').value;
@@ -797,9 +963,7 @@
     });
 
     document.getElementById('todoInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        document.getElementById('addBtn').click();
-      }
+      if (e.key === 'Enter') document.getElementById('addBtn').click();
     });
 
     document.querySelectorAll('.filter-tab').forEach(tab => {
@@ -820,26 +984,18 @@
       if (e.target === document.getElementById('editModal')) closeEdit();
     });
 
-    // ===== Init =====
     loadTodos();
 
-    // Periodic cloud sync (pull latest data every 30s)
     setInterval(async () => {
-      if (SHARED_BIN_ID && !isLoading) {
+      if (!isLoading && cloudAvailable) {
         try {
-          const latest = await readBin(SHARED_BIN_ID);
-          // Only update if remote data is different
-          const localStr = JSON.stringify(todos);
-          const remoteStr = JSON.stringify(latest);
-          if (localStr !== remoteStr) {
+          const latest = await readBin();
+          if (JSON.stringify(todos) !== JSON.stringify(latest)) {
             todos = latest;
             renderTodos();
             updateStats();
-            showToast('已同步最新数据');
           }
-        } catch (e) {
-          console.log('定时同步失败:', e);
-        }
+        } catch (e) { console.log('定时同步失败:', e); }
       }
     }, 30000);
   </script>
