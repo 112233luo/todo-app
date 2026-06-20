@@ -553,20 +553,23 @@
   <script>
     // ===== Data Layer =====
     const JSONBIN_API_KEY = '$2a$10$ZOvb.B/gphXQUXB6/vwIpOu.hmDg/1oTM6rohiF8Vij0irEPkJit.';
-    const JSONBIN_BIN_ID = localStorage.getItem('jsonbin_bin_id') || null;
+    // Use a fixed bin name so all devices share the same data
+    const BIN_NAME = 'todo-app-shared-data';
+    let SHARED_BIN_ID = null;
     let todos = [];
     let currentFilter = 'all';
     let editingId = null;
     let isLoading = false;
 
     // JSONBin.io API helpers
-    async function createBin(data) {
+    async function createBin(data, name) {
       const res = await fetch('https://api.jsonbin.io/v3/b', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Master-Key': JSONBIN_API_KEY,
-          'X-Bin-Private': 'false'
+          'X-Bin-Private': 'false',
+          'X-Bin-Name': name || 'todo-data'
         },
         body: JSON.stringify({ todos: data })
       });
@@ -600,23 +603,39 @@
       return result.record.todos || [];
     }
 
+    // Find existing bin by name or create new one
+    async function getOrCreateSharedBin() {
+      try {
+        // List all bins to find existing one
+        const res = await fetch('https://api.jsonbin.io/v3/c', {
+          method: 'GET',
+          headers: {
+            'X-Master-Key': JSONBIN_API_KEY
+          }
+        });
+        if (res.ok) {
+          const result = await res.json();
+          const existing = result.find(b => b.snippetMeta && b.snippetMeta.name === BIN_NAME);
+          if (existing) {
+            return existing.record;
+          }
+        }
+      } catch (e) {
+        console.log('查找存储失败:', e);
+      }
+      // Create new bin if not found
+      return await createBin([], BIN_NAME);
+    }
+
     // Load from JSONBin.io (real cloud)
     async function loadTodos() {
       isLoading = true;
       showSyncStatus('syncing');
       try {
-        if (JSONBIN_BIN_ID) {
-          todos = await readBin(JSONBIN_BIN_ID);
-        } else {
-          // Try to migrate from localStorage
-          const local = localStorage.getItem('my_todo_app_data');
-          const legacy = local ? JSON.parse(local) : [];
-          todos = Array.isArray(legacy) ? legacy : [];
-          if (todos.length > 0) {
-            const binId = await createBin(todos);
-            localStorage.setItem('jsonbin_bin_id', binId);
-          }
+        if (!SHARED_BIN_ID) {
+          SHARED_BIN_ID = await getOrCreateSharedBin();
         }
+        todos = await readBin(SHARED_BIN_ID);
         showSyncStatus('synced');
       } catch (e) {
         console.error('云端加载失败:', e);
@@ -636,13 +655,10 @@
       if (isLoading) return;
       showSyncStatus('syncing');
       try {
-        let binId = localStorage.getItem('jsonbin_bin_id');
-        if (!binId) {
-          binId = await createBin(todos);
-          localStorage.setItem('jsonbin_bin_id', binId);
-        } else {
-          await updateBin(binId, todos);
+        if (!SHARED_BIN_ID) {
+          SHARED_BIN_ID = await getOrCreateSharedBin();
         }
+        await updateBin(SHARED_BIN_ID, todos);
         // Also backup to localStorage
         localStorage.setItem('my_todo_app_data', JSON.stringify(todos));
         showSyncStatus('synced');
@@ -845,10 +861,9 @@
 
     // Periodic cloud sync (pull latest data every 30s)
     setInterval(async () => {
-      const binId = localStorage.getItem('jsonbin_bin_id');
-      if (binId && !isLoading) {
+      if (SHARED_BIN_ID && !isLoading) {
         try {
-          const latest = await readBin(binId);
+          const latest = await readBin(SHARED_BIN_ID);
           // Only update if remote data is different
           const localStr = JSON.stringify(todos);
           const remoteStr = JSON.stringify(latest);
